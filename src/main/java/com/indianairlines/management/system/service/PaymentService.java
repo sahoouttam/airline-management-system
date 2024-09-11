@@ -20,24 +20,20 @@ import java.util.Optional;
 public class PaymentService {
 
     private final PaymentRepository paymentRepository;
-    private final BookingService bookingService;
     private final AccountService accountService;
     private final PassengerService passengerService;
 
     @Autowired
     public PaymentService(PaymentRepository paymentRepository,
-                          BookingService bookingService,
                           AccountService accountService,
                           PassengerService passengerService) {
         this.paymentRepository = paymentRepository;
-        this.bookingService = bookingService;
         this.accountService = accountService;
         this.passengerService = passengerService;
     }
 
     @Transactional
-    public Payment processPayment(Long bookingId, TransactionType transactionType, double amount) {
-        Booking booking = bookingService.getBookingById(bookingId);
+    public Payment processPayment(Booking booking, TransactionType transactionType, double amount) {
         Passenger passenger = passengerService.getPassengerByBooking(booking);
         Payment payment = Payment.builder()
                 .booking(booking)
@@ -52,8 +48,7 @@ public class PaymentService {
     }
 
     @Transactional
-    public Payment processRefund(Long bookingId) {
-        Booking booking = bookingService.getBookingById(bookingId);
+    public Payment processRefund(Booking booking) {
         Passenger passenger = passengerService.getPassengerByBooking(booking);
         Payment payment = getByBooking(booking);
         if (PaymentStatus.REFUND.equals(payment.getPaymentStatus())) {

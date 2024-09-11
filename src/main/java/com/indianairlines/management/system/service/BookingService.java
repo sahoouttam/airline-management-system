@@ -58,7 +58,7 @@ public class BookingService {
                 .flight(flight)
                 .build();
         Seat seat = seatService.allocateSeat(flight, flightBookingRequest.getSeatType());
-        Payment payment = paymentService.processPayment(booking.getId(), flightBookingRequest.getTransactionType(), flightBookingRequest.getBookingFee());
+        Payment payment = paymentService.processPayment(booking, flightBookingRequest.getTransactionType(), flightBookingRequest.getBookingFee());
         bookingRepository.save(booking);
         return new FlightBookingResponse(
                 booking.getId(),
@@ -81,7 +81,7 @@ public class BookingService {
         Seat unallocatedSeat = seatService.unallocateSeat(flight, bookingCancelRequest.getSeatType(),
                 bookingCancelRequest.getSeatNumber());
 
-        Payment paymentRefund = paymentService.processRefund(bookingId);
+        Payment paymentRefund = paymentService.processRefund(booking);
         return new BookingCancelledResponse(bookingId,
                 paymentRefund.getTransactionAmount(),
                 unallocatedSeat.getSeatNumber());

@@ -40,6 +40,6 @@ public class Booking extends BaseEntity {
     @JoinColumn(name = "flight_id", nullable = false)
     private Flight flight;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "passenger", fetch = FetchType.LAZY)
-    private List<Baggage> baggageList;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "booking", fetch = FetchType.LAZY)
+    private List<Baggage> baggages;
 }
