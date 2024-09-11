@@ -65,10 +65,11 @@ public class FlightService {
                 sourceAirport, destinationAirport, departureTime);
     }
 
-    public FlightAircraftAssignmentResponse assignAircraftAndCrewMembers(FlightAircraftAssignmentRequest flightAircraftAssignmentRequest) {
+    public FlightAircraftAssignmentResponse assignAircraftAndCrewMembers(Long flightId,
+                                                                         FlightAircraftAssignmentRequest flightAircraftAssignmentRequest) {
         Aircraft aircraft = aircraftService
                 .getById(flightAircraftAssignmentRequest.getAircraftId());
-        Flight flight = getFlightDetails(flightAircraftAssignmentRequest.getFlightId(),
+        Flight flight = getFlightDetails(flightId,
                 flightAircraftAssignmentRequest.getSource(),
                 flightAircraftAssignmentRequest.getDestination(),
                 flightAircraftAssignmentRequest.getFlightDate());

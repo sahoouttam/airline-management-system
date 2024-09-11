@@ -14,7 +14,6 @@ import java.util.List;
 @Builder
 public class FlightAircraftAssignmentRequest {
 
-    private Long flightId;
     private Long aircraftId;
     private List<Long> crewMemberIds;
     private String source;

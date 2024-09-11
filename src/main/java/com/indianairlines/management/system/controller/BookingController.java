@@ -1,8 +1,10 @@
 package com.indianairlines.management.system.controller;
 
 import com.indianairlines.management.system.data.dtos.request.BookingCancelRequest;
+import com.indianairlines.management.system.data.dtos.request.FlightBookingChangeRequest;
 import com.indianairlines.management.system.data.dtos.request.FlightBookingRequest;
 import com.indianairlines.management.system.data.dtos.response.BookingCancelledResponse;
+import com.indianairlines.management.system.data.dtos.response.FlightBookingChangeResponse;
 import com.indianairlines.management.system.data.dtos.response.FlightBookingResponse;
 import com.indianairlines.management.system.service.BookingService;
 import lombok.extern.slf4j.Slf4j;
@@ -41,5 +43,14 @@ public class BookingController {
         BookingCancelledResponse bookingCancelledResponse = bookingService
                 .cancelBooking(bookingId, bookingCancelRequest);
         return new ResponseEntity<>(bookingCancelledResponse, HttpStatus.OK);
+    }
+
+    @PatchMapping("/booking/change/{bookingId}")
+    public ResponseEntity<FlightBookingChangeResponse> changeBooking(@PathVariable Long bookingId,
+                                                                     @RequestBody FlightBookingChangeRequest flightBookingChangeRequest) {
+        log.info("Changed booking on {}", new Date());
+        FlightBookingChangeResponse flightBookingChangeResponse =
+                bookingService.changeBooking(bookingId, flightBookingChangeRequest);
+        return new ResponseEntity<>(flightBookingChangeResponse, HttpStatus.OK);
     }
 }
