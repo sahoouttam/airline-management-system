@@ -4,6 +4,7 @@ import com.indianairlines.management.system.data.dtos.request.BookingCancelReque
 import com.indianairlines.management.system.data.dtos.request.FlightBookingChangeRequest;
 import com.indianairlines.management.system.data.dtos.request.FlightBookingRequest;
 import com.indianairlines.management.system.data.dtos.response.BookingCancelledResponse;
+import com.indianairlines.management.system.data.dtos.response.FlightBookingChangeResponse;
 import com.indianairlines.management.system.data.dtos.response.FlightBookingResponse;
 import com.indianairlines.management.system.data.entities.*;
 import com.indianairlines.management.system.data.enums.BookingStatus;
@@ -86,12 +87,26 @@ public class BookingService {
                 unallocatedSeat.getSeatNumber());
     }
 
-    public void changeBooking(Long bookingId, FlightBookingChangeRequest flightBookingChangeRequest) {
+    @Transactional
+    public FlightBookingChangeResponse changeBooking(Long bookingId, FlightBookingChangeRequest flightBookingChangeRequest) {
         cancelBooking(bookingId, new BookingCancelRequest(
                 flightBookingChangeRequest.getSeatType(),
                 flightBookingChangeRequest.getSeatNumber()));
         FlightBookingResponse flightBookingResponse = confirmBooking(
-                new FlightBookingRequest());
+                new FlightBookingRequest(flightBookingChangeRequest.getPassengerId(),
+                        flightBookingChangeRequest.getNewSource(),
+                        flightBookingChangeRequest.getNewDestination(),
+                        flightBookingChangeRequest.getNewFlightDate(),
+                        flightBookingChangeRequest.getSeatType(),
+                        flightBookingChangeRequest.getBookingFee(),
+                        flightBookingChangeRequest.getTransactionType()));
+        return FlightBookingChangeResponse.builder()
+                .bookingId(flightBookingResponse.getBookingId())
+                .source(flightBookingResponse.getSource())
+                .destination(flightBookingResponse.getDestination())
+                .flightDate(flightBookingChangeRequest.getNewFlightDate())
+                .seatNumber(flightBookingResponse.getSeatNumber())
+                .build();
     }
 
     public Booking getBookingById(Long bookingId) {

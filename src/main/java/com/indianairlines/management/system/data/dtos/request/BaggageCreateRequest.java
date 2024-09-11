@@ -20,5 +20,5 @@ public class BaggageCreateRequest {
 
     private String description;
 
-    private Long passengerId;
+    private Long bookingId;
 }
