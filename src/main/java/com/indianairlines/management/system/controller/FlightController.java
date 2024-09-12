@@ -1,7 +1,6 @@
 package com.indianairlines.management.system.controller;
 
 import com.indianairlines.management.system.data.dtos.request.FlightAircraftAssignmentRequest;
-import com.indianairlines.management.system.data.dtos.request.FlightSearchRequest;
 import com.indianairlines.management.system.data.dtos.response.FlightAircraftAssignmentResponse;
 import com.indianairlines.management.system.data.dtos.response.FlightSearchResponse;
 import com.indianairlines.management.system.service.FlightService;
@@ -13,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @RestController
@@ -27,16 +27,11 @@ public class FlightController {
     }
 
     @GetMapping("/flights/search/source/{source}/destination/{destination}/date{flightDate}")
-    public ResponseEntity<List<FlightSearchResponse>> searchFlights(@PathVariable String source,
-                                                                    @PathVariable String destination,
-                                                                    @PathVariable Date flightDate) {
-        FlightSearchRequest flightSearchRequest = FlightSearchRequest.builder()
-                .sourceCity(source)
-                .destinationCity(destination)
-                .schedulingDate(flightDate)
-                .build();
-        List<FlightSearchResponse> flightSearchResponses = flightService.searchFlight(flightSearchRequest);
-        return new ResponseEntity<>(flightSearchResponses, HttpStatus.OK);
+    public CompletableFuture<List<FlightSearchResponse>> searchFlights(@PathVariable String source,
+                                                                       @PathVariable String destination,
+                                                                       @PathVariable Date flightDate) {
+
+        return flightService.searchFlightBetween(source, destination, flightDate);
     }
 
     @PatchMapping("/flights/assign/{flightId}")

@@ -1,5 +1,6 @@
 package com.indianairlines.management.system.service;
 
+import com.indianairlines.management.system.conflig.ExecutorConfig;
 import com.indianairlines.management.system.data.dtos.request.FlightAircraftAssignmentRequest;
 import com.indianairlines.management.system.data.dtos.request.FlightSearchRequest;
 import com.indianairlines.management.system.data.dtos.response.FlightAircraftAssignmentResponse;
@@ -16,6 +17,9 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -27,21 +31,38 @@ public class FlightService {
     private final BookingService bookingService;
     private final AircraftService aircraftService;
     private final CrewMemberService crewMemberService;
+    private final ExecutorConfig executorConfig;
 
     @Autowired
     public FlightService(FlightRepository flightRepository,
                          AirportService airportService,
                          BookingService bookingService,
-                         AircraftService aircraftService, 
-                         CrewMemberService crewMemberService) {
+                         AircraftService aircraftService,
+                         CrewMemberService crewMemberService,
+                         ExecutorConfig executorConfig) {
         this.flightRepository = flightRepository;
         this.airportService = airportService;
         this.bookingService = bookingService;
         this.aircraftService = aircraftService;
         this.crewMemberService = crewMemberService;
+        this.executorConfig = executorConfig;
     }
 
-    public List<FlightSearchResponse> searchFlight(FlightSearchRequest flightSearchRequest) {
+    public CompletableFuture<List<FlightSearchResponse>> searchFlightBetween(String source, String destination, Date flightDate) {
+        FlightSearchRequest flightSearchRequest = FlightSearchRequest.builder()
+                .sourceCity(source)
+                .destinationCity(destination)
+                .schedulingDate(flightDate)
+                .build();
+        return CompletableFuture.supplyAsync(
+                () -> searchFlight(flightSearchRequest),
+                executorConfig.getConfig())
+                .thenApply(flights -> flights.stream()
+                        .map(this::convertFlightToFlightSearchResponse)
+                        .collect(Collectors.toList()));
+    }
+
+    public List<Flight> searchFlight(FlightSearchRequest flightSearchRequest) {
         Optional<List<Flight>> flights = getAllAirportBetweenSourceAndDestination(
                 flightSearchRequest.getSourceCity(),
                 flightSearchRequest.getDestinationCity(),
@@ -51,9 +72,7 @@ public class FlightService {
             throw new FlightNotFoundException("No flights found");
         }
 
-        return flights.get().stream()
-                .map(this::convertFlightToFlightSearchResponse)
-                .collect(Collectors.toList());
+        return flights.get();
     }
 
     public Optional<List<Flight>> getAllAirportBetweenSourceAndDestination(String source, String destination, Date departureTime) {

@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @RestController
@@ -28,12 +29,10 @@ public class BookingController {
     }
 
     @PostMapping("/booking/confirm")
-    public ResponseEntity<FlightBookingResponse> bookFlight(@RequestBody FlightBookingRequest flightBookingRequest) {
+    public CompletableFuture<FlightBookingResponse> bookFlight(@RequestBody FlightBookingRequest flightBookingRequest) {
         log.info("Booking flight from {} to {}", flightBookingRequest.getSource(),
                 flightBookingRequest.getDestination());
-        FlightBookingResponse flightBookingResponse = bookingService
-                .confirmBooking(flightBookingRequest);
-        return new ResponseEntity<>(flightBookingResponse, HttpStatus.CREATED);
+        return bookingService.confirmFlightBooking(flightBookingRequest);
     }
 
     @PutMapping("/booking/cancel/{bookingId}")

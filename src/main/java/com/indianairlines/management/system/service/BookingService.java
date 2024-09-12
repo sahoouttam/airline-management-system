@@ -1,5 +1,6 @@
 package com.indianairlines.management.system.service;
 
+import com.indianairlines.management.system.conflig.ExecutorConfig;
 import com.indianairlines.management.system.data.dtos.request.BookingCancelRequest;
 import com.indianairlines.management.system.data.dtos.request.FlightBookingChangeRequest;
 import com.indianairlines.management.system.data.dtos.request.FlightBookingRequest;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -30,21 +32,29 @@ public class BookingService {
     private final PassengerService passengerService;
     private final FlightService flightService;
     private final SeatService seatService;
+    private final ExecutorConfig executorConfig;
 
     @Autowired
     public BookingService(BookingRepository bookingRepository,
                           PaymentService paymentService,
                           PassengerService passengerService,
                           FlightService flightService,
-                          SeatService seatService) {
+                          SeatService seatService,
+                          ExecutorConfig executorConfig) {
         this.bookingRepository = bookingRepository;
         this.paymentService = paymentService;
         this.passengerService = passengerService;
         this.flightService = flightService;
         this.seatService = seatService;
+        this.executorConfig = executorConfig;
     }
 
     @Transactional
+    public CompletableFuture<FlightBookingResponse> confirmFlightBooking(FlightBookingRequest flightBookingRequest) {
+        return CompletableFuture.supplyAsync(() -> confirmBooking(flightBookingRequest),
+                executorConfig.getConfig());
+    }
+
     public FlightBookingResponse confirmBooking(FlightBookingRequest flightBookingRequest) {
         Passenger passenger = passengerService.getPassengerById(
                 flightBookingRequest.getPassengerId());
