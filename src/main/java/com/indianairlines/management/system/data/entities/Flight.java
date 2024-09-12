@@ -48,4 +48,7 @@ public class Flight extends BaseEntity {
             joinColumns = @JoinColumn(name = "flight_id"),
             inverseJoinColumns = @JoinColumn(name = "crew_member_id"))
     private List<CrewMember> crewMembers;
+
+    @Version
+    private Long version;
 }

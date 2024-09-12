@@ -42,4 +42,7 @@ public class Booking extends BaseEntity {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "booking", fetch = FetchType.LAZY)
     private List<Baggage> baggages;
+
+    @Version
+    private Long version;
 }

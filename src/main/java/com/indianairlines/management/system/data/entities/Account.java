@@ -25,4 +25,7 @@ public class Account {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "passenger_id", nullable = false)
     private Passenger passenger;
+
+    @Version
+    private Long version;
 }
