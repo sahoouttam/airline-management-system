@@ -14,4 +14,6 @@ public class PassengerRegisterResponse {
     private String name;
 
     private String phoneNumber;
+
+    private String address;
 }

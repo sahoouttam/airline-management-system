@@ -69,9 +69,9 @@ public class BookingService {
                 .build();
         Seat seat = seatService.allocateSeat(flight, flightBookingRequest.getSeatType());
         Payment payment = paymentService.processPayment(booking, flightBookingRequest.getTransactionType(), flightBookingRequest.getBookingFee());
-        bookingRepository.save(booking);
+        Booking confirmedBooking = bookingRepository.save(booking);
         return new FlightBookingResponse(
-                booking.getId(),
+                confirmedBooking.getId(),
                 flight.getSource().getCity(),
                 flight.getDestination().getCity(),
                 seat.getSeatNumber(),
