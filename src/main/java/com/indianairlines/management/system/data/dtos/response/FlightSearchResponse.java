@@ -1,5 +1,6 @@
 package com.indianairlines.management.system.data.dtos.response;
 
+import com.indianairlines.management.system.data.enums.AircraftManufacturer;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,5 +16,7 @@ public class FlightSearchResponse {
 
     private Date departureTime;
     private Date arrivalTime;
-    private int seatAvailable;
+    private AircraftManufacturer aircraftManufacturer;
+    private String model;
+    private int seatCapacity;
 }

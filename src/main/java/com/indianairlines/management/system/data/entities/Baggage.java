@@ -24,8 +24,6 @@ public class Baggage  {
 
     private Double weight;
 
-    private Double fee;
-
     private String tagCode;
 
     private String description;

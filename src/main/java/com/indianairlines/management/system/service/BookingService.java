@@ -68,10 +68,13 @@ public class BookingService {
                 .flight(flight)
                 .build();
         Seat seat = seatService.allocateSeat(flight, flightBookingRequest.getSeatType());
-        Payment payment = paymentService.processPayment(booking, flightBookingRequest.getTransactionType(), flightBookingRequest.getBookingFee());
-        bookingRepository.save(booking);
+        Payment payment = paymentService.processPayment(booking,
+                flightBookingRequest.getTransactionType(),
+                flightBookingRequest.getBookingFee(),
+                flightBookingRequest.getAccountNumber());
+        Booking confirmedBooking = bookingRepository.save(booking);
         return new FlightBookingResponse(
-                booking.getId(),
+                confirmedBooking.getId(),
                 flight.getSource().getCity(),
                 flight.getDestination().getCity(),
                 seat.getSeatNumber(),
@@ -91,7 +94,7 @@ public class BookingService {
         Seat unallocatedSeat = seatService.unallocateSeat(flight, bookingCancelRequest.getSeatType(),
                 bookingCancelRequest.getSeatNumber());
 
-        Payment paymentRefund = paymentService.processRefund(booking);
+        Payment paymentRefund = paymentService.processRefund(booking, bookingCancelRequest.getAccountNumber());
         return new BookingCancelledResponse(bookingId,
                 paymentRefund.getTransactionAmount(),
                 unallocatedSeat.getSeatNumber());
@@ -101,7 +104,8 @@ public class BookingService {
     public FlightBookingChangeResponse changeBooking(Long bookingId, FlightBookingChangeRequest flightBookingChangeRequest) {
         cancelBooking(bookingId, new BookingCancelRequest(
                 flightBookingChangeRequest.getSeatType(),
-                flightBookingChangeRequest.getSeatNumber()));
+                flightBookingChangeRequest.getSeatNumber(),
+                flightBookingChangeRequest.getAccountNumber()));
         FlightBookingResponse flightBookingResponse = confirmBooking(
                 new FlightBookingRequest(flightBookingChangeRequest.getPassengerId(),
                         flightBookingChangeRequest.getNewSource(),
@@ -109,6 +113,7 @@ public class BookingService {
                         flightBookingChangeRequest.getNewFlightDate(),
                         flightBookingChangeRequest.getSeatType(),
                         flightBookingChangeRequest.getBookingFee(),
+                        flightBookingChangeRequest.getAccountNumber(),
                         flightBookingChangeRequest.getTransactionType()));
         return FlightBookingChangeResponse.builder()
                 .bookingId(flightBookingResponse.getBookingId())
@@ -133,9 +138,5 @@ public class BookingService {
             throw new FlightNotFoundException("No flight available");
         }
         return flights.get().get(0);
-    }
-
-    public Booking getBookingByFlight(Flight flight) {
-        return bookingRepository.findByFlight(flight).orElse(null);
     }
 }

@@ -33,7 +33,8 @@ public class PaymentService {
     }
 
     @Transactional
-    public Payment processPayment(Booking booking, TransactionType transactionType, double amount) {
+    public Payment processPayment(Booking booking, TransactionType transactionType,
+                                  double amount, String accountNumber) {
         Passenger passenger = passengerService.getPassengerByBooking(booking);
         Payment payment = Payment.builder()
                 .booking(booking)
@@ -43,12 +44,12 @@ public class PaymentService {
                 .paymentStatus(PaymentStatus.PAID)
                 .build();
         Payment paidPayment = paymentRepository.save(payment);
-        accountService.debitAmount(passenger, amount);
+        accountService.debitAmount(passenger, amount, accountNumber);
         return paidPayment;
     }
 
     @Transactional
-    public Payment processRefund(Booking booking) {
+    public Payment processRefund(Booking booking, String accountNumber) {
         Passenger passenger = passengerService.getPassengerByBooking(booking);
         Payment payment = getByBooking(booking);
         if (PaymentStatus.REFUND.equals(payment.getPaymentStatus())) {
@@ -56,7 +57,9 @@ public class PaymentService {
         }
         payment.setPaymentStatus(PaymentStatus.REFUND);
         Payment paymentRefund = paymentRepository.save(payment);
-        accountService.creditAmount(passenger, payment.getTransactionAmount());
+        accountService.creditAmount(passenger,
+                payment.getTransactionAmount(),
+                accountNumber);
         return paymentRefund;
     }
 
