@@ -14,4 +14,5 @@ public class BookingCancelRequest {
 
     private SeatType seatType;
     private String seatNumber;
+    private String accountNumber;
 }

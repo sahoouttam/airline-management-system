@@ -18,8 +18,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -138,11 +136,13 @@ public class FlightService {
     }
 
     private FlightSearchResponse convertFlightToFlightSearchResponse(Flight flight) {
-        Booking booking = bookingService.getBookingByFlight(flight);
+        Aircraft aircraft = flight.getAircraft();
         return FlightSearchResponse.builder()
                 .departureTime(flight.getSourceDepartureTime())
                 .arrivalTime(flight.getDestinationArrivalTime())
-                .seatAvailable(booking == null ? 0 : booking.getAvailableSeats())
+                .aircraftManufacturer(aircraft.getAircraftManufacturer())
+                .model(aircraft.getModel())
+                .seatCapacity(aircraft.getSeatCapacity())
                 .build();
     }
 }

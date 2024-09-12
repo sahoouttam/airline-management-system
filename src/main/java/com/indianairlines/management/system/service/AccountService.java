@@ -22,9 +22,9 @@ public class AccountService {
     }
 
     @Transactional
-    public void debitAmount(Passenger passenger, double amount) {
+    public void debitAmount(Passenger passenger, double amount, String accountNumber) {
         log.info("Passenger with id {} debited by {}", passenger.getId(), amount);
-        Account account = getAccountByPassenger(passenger);
+        Account account = getAccount(passenger, accountNumber);
         if (account.getBalance() < amount) {
             throw new InsufficientBalanceException("Insufficient balance for booking");
         }
@@ -33,14 +33,14 @@ public class AccountService {
     }
 
     @Transactional
-    public void creditAmount(Passenger passenger, double amount) {
-        Account account = getAccountByPassenger(passenger);
+    public void creditAmount(Passenger passenger, double amount, String accountNumber) {
+        Account account = getAccount(passenger, accountNumber);
         account.setBalance(account.getBalance() + amount);
         accountRepository.save(account);
     }
 
-    private Account getAccountByPassenger(Passenger passenger) {
-        return accountRepository.findByPassenger(passenger)
+    private Account getAccount(Passenger passenger, String accountNumber) {
+        return accountRepository.findByPassengerAndAccountNumber(passenger, accountNumber)
                 .orElseThrow(() -> new AccountNotFoundException("Account not found"));
     }
 }

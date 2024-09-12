@@ -27,5 +27,7 @@ public class FlightBookingRequest {
 
     private double bookingFee;
 
+    private String accountNumber;
+
     private TransactionType transactionType;
 }
