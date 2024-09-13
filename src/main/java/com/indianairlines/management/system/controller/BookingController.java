@@ -29,7 +29,7 @@ public class BookingController {
     }
 
     @PostMapping("/booking/confirm")
-    public CompletableFuture<FlightBookingResponse> bookFlight(@RequestBody FlightBookingRequest flightBookingRequest) {
+    public FlightBookingResponse bookFlight(@RequestBody FlightBookingRequest flightBookingRequest) {
         log.info("Booking flight from {} to {}", flightBookingRequest.getSource(),
                 flightBookingRequest.getDestination());
         return bookingService.confirmFlightBooking(flightBookingRequest);

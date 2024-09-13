@@ -50,9 +50,10 @@ public class BookingService {
     }
 
     @Transactional
-    public CompletableFuture<FlightBookingResponse> confirmFlightBooking(FlightBookingRequest flightBookingRequest) {
+    public FlightBookingResponse confirmFlightBooking(FlightBookingRequest flightBookingRequest) {
         return CompletableFuture.supplyAsync(() -> confirmBooking(flightBookingRequest),
-                executorConfig.getConfig());
+                executorConfig.getConfig())
+                .join();
     }
 
     public FlightBookingResponse confirmBooking(FlightBookingRequest flightBookingRequest) {
