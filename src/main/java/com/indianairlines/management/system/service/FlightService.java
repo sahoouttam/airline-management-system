@@ -46,18 +46,15 @@ public class FlightService {
         this.executorConfig = executorConfig;
     }
 
-    public CompletableFuture<List<FlightSearchResponse>> searchFlightBetween(String source, String destination, Date flightDate) {
+    public List<FlightSearchResponse> searchFlightBetween(String source, String destination, Date flightDate) {
         FlightSearchRequest flightSearchRequest = FlightSearchRequest.builder()
                 .sourceCity(source)
                 .destinationCity(destination)
                 .schedulingDate(flightDate)
                 .build();
-        return CompletableFuture.supplyAsync(
-                () -> searchFlight(flightSearchRequest),
-                executorConfig.getConfig())
-                .thenApply(flights -> flights.stream()
-                        .map(this::convertFlightToFlightSearchResponse)
-                        .collect(Collectors.toList()));
+        return searchFlight(flightSearchRequest).stream()
+                .map(this::convertFlightToFlightSearchResponse)
+                .collect(Collectors.toList());
     }
 
     public List<Flight> searchFlight(FlightSearchRequest flightSearchRequest) {

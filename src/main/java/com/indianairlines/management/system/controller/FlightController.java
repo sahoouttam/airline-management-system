@@ -27,7 +27,7 @@ public class FlightController {
     }
 
     @GetMapping("/flights/search/source/{source}/destination/{destination}/date{flightDate}")
-    public CompletableFuture<List<FlightSearchResponse>> searchFlights(@PathVariable String source,
+    public List<FlightSearchResponse> searchFlights(@PathVariable String source,
                                                                        @PathVariable String destination,
                                                                        @PathVariable Date flightDate) {
 
