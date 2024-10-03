@@ -2,8 +2,10 @@ package com.indianairlines.management.system.service;
 
 import com.indianairlines.management.system.conflig.ExecutorConfig;
 import com.indianairlines.management.system.data.dtos.request.FlightAircraftAssignmentRequest;
+import com.indianairlines.management.system.data.dtos.request.FlightCreateRequest;
 import com.indianairlines.management.system.data.dtos.request.FlightSearchRequest;
 import com.indianairlines.management.system.data.dtos.response.FlightAircraftAssignmentResponse;
+import com.indianairlines.management.system.data.dtos.response.FlightCreateResponse;
 import com.indianairlines.management.system.data.dtos.response.FlightSearchResponse;
 import com.indianairlines.management.system.data.entities.*;
 import com.indianairlines.management.system.data.enums.FlightStatus;
@@ -25,24 +27,41 @@ public class FlightService {
 
     private final FlightRepository flightRepository;
     private final AirportService airportService;
-    private final BookingService bookingService;
     private final AircraftService aircraftService;
     private final CrewMemberService crewMemberService;
-    private final ExecutorConfig executorConfig;
 
     @Autowired
     public FlightService(FlightRepository flightRepository,
                          AirportService airportService,
-                         BookingService bookingService,
                          AircraftService aircraftService,
-                         CrewMemberService crewMemberService,
-                         ExecutorConfig executorConfig) {
+                         CrewMemberService crewMemberService) {
         this.flightRepository = flightRepository;
         this.airportService = airportService;
-        this.bookingService = bookingService;
         this.aircraftService = aircraftService;
         this.crewMemberService = crewMemberService;
-        this.executorConfig = executorConfig;
+    }
+
+    public FlightCreateResponse createFlight(FlightCreateRequest flightCreateRequest) {
+        Airport sourceAirport = airportService.findAirportById(flightCreateRequest.getSourceId());
+        Airport destinationAirport = airportService.findAirportById(flightCreateRequest.getDestinationId());
+        Aircraft aircraft = aircraftService.getById(flightCreateRequest.getAircraftId());
+        Flight flight = Flight.builder()
+                .aircraft(aircraft)
+                .source(sourceAirport)
+                .destination(destinationAirport)
+                .sourceDepartureTime(flightCreateRequest.getDepartureTime())
+                .destinationArrivalTime(flightCreateRequest.getArrivalTime())
+                .flightStatus(FlightStatus.valueOf(flightCreateRequest.getFlightStatus()))
+                .build();
+        Flight createdFlight = saveFlight(flight);
+        return new FlightCreateResponse(
+                createdFlight.getId(),
+                getAircraftName(aircraft),
+                sourceAirport.getCity(),
+                destinationAirport.getCity(),
+                createdFlight.getSourceDepartureTime(),
+                createdFlight.getDestinationArrivalTime()
+        );
     }
 
     public List<FlightSearchResponse> searchFlightBetween(String source, String destination, Date flightDate) {
@@ -107,12 +126,7 @@ public class FlightService {
         Airport destinationAirport = sourceDestinationPair.getSecond();
 
         return flightRepository.findByIdAndSourceAndDestinationAndSourceDepartureTime(
-                flightId, sourceAirport, destinationAirport, flightDate)
-                .orElseThrow(() -> new FlightNotFoundException("Flight not found with id " + flightId));
-    }
-
-    public Flight getFlightById(Long flightId) {
-        return flightRepository.findById(flightId)
+                        flightId, sourceAirport, destinationAirport, flightDate)
                 .orElseThrow(() -> new FlightNotFoundException("Flight not found with id " + flightId));
     }
 
@@ -141,4 +155,14 @@ public class FlightService {
                 .seatCapacity(aircraft.getSeatCapacity())
                 .build();
     }
+
+    private Flight saveFlight(Flight flight) {
+        return flightRepository.save(flight);
+    }
+
+    private String getAircraftName(Aircraft aircraft) {
+        return aircraft.getAircraftManufacturer().toString() +
+                " " + aircraft.getModel();
+    }
+
 }

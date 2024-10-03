@@ -3,6 +3,7 @@ package com.indianairlines.management.system.data.entities;
 
 import com.indianairlines.management.system.data.enums.FlightStatus;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import java.util.List;
 
 @Entity
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Flight extends BaseEntity {

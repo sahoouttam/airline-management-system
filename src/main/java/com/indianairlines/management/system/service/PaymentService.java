@@ -21,21 +21,17 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final AccountService accountService;
-    private final PassengerService passengerService;
 
     @Autowired
     public PaymentService(PaymentRepository paymentRepository,
-                          AccountService accountService,
-                          PassengerService passengerService) {
+                          AccountService accountService) {
         this.paymentRepository = paymentRepository;
         this.accountService = accountService;
-        this.passengerService = passengerService;
     }
 
     @Transactional
-    public Payment processPayment(Booking booking, TransactionType transactionType,
+    public Payment processPayment(Booking booking, Passenger passenger, TransactionType transactionType,
                                   double amount, String accountNumber) {
-        Passenger passenger = passengerService.getPassengerByBooking(booking);
         Payment payment = Payment.builder()
                 .booking(booking)
                 .transactionDate(new Date())
@@ -49,8 +45,7 @@ public class PaymentService {
     }
 
     @Transactional
-    public Payment processRefund(Booking booking, String accountNumber) {
-        Passenger passenger = passengerService.getPassengerByBooking(booking);
+    public Payment processRefund(Booking booking, Passenger passenger, String accountNumber) {
         Payment payment = getByBooking(booking);
         if (PaymentStatus.REFUND.equals(payment.getPaymentStatus())) {
             throw new PaymentNotFoundException("Payment refund already processed");
@@ -70,4 +65,5 @@ public class PaymentService {
         }
         return payment.get();
     }
+
 }

@@ -1,4 +1,4 @@
-package com.indianairlines.management.system.data.entities;
+package com.indianairlines.management.system.data.dtos.response;
 
 
 import com.indianairlines.management.system.data.enums.AircraftManufacturer;
@@ -7,26 +7,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
-
-@Entity
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Aircraft extends BaseEntity {
+@Builder
+public class AircraftRegisterResponse {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Enumerated(EnumType.STRING)
     private AircraftManufacturer aircraftManufacturer;
 
     private String model;
 
     private String registrationNumber;
-
-    private int seatCapacity;
-
 }

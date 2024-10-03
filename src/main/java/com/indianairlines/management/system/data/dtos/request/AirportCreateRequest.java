@@ -1,6 +1,5 @@
 package com.indianairlines.management.system.data.dtos.request;
 
-import com.indianairlines.management.system.data.enums.SeatType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,14 +9,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BookingCancelRequest {
+public class AirportCreateRequest {
 
-    private Long passengerId;
+    private String name;
 
-    private SeatType seatType;
+    private String city;
 
-    private String seatNumber;
+    private String country;
 
-    private String accountNumber;
-
+    private String airportCode;
 }
