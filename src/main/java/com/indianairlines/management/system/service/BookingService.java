@@ -52,7 +52,7 @@ public class BookingService {
     @Transactional
     public FlightBookingResponse confirmFlightBooking(FlightBookingRequest flightBookingRequest) {
         return CompletableFuture.supplyAsync(() -> confirmBooking(flightBookingRequest),
-                executorConfig.getConfig())
+                        executorConfig.getConfig())
                 .join();
     }
 
@@ -69,7 +69,7 @@ public class BookingService {
                 .flight(flight)
                 .build();
         Seat seat = seatService.allocateSeat(flight, flightBookingRequest.getSeatType());
-        Payment payment = paymentService.processPayment(booking,
+        Payment payment = paymentService.processPayment(booking, passenger,
                 flightBookingRequest.getTransactionType(),
                 flightBookingRequest.getBookingFee(),
                 flightBookingRequest.getAccountNumber());
@@ -87,6 +87,8 @@ public class BookingService {
     @Transactional
     public BookingCancelledResponse cancelBooking(Long bookingId, BookingCancelRequest bookingCancelRequest) {
         Booking booking = getBookingById(bookingId);
+        Passenger passenger = passengerService.getPassengerById(
+                bookingCancelRequest.getPassengerId());
         if (BookingStatus.CANCELLED.equals(booking.getBookingStatus())) {
             throw new BookingCancelledException("Booking already cancelled");
         }
@@ -95,7 +97,7 @@ public class BookingService {
         Seat unallocatedSeat = seatService.unallocateSeat(flight, bookingCancelRequest.getSeatType(),
                 bookingCancelRequest.getSeatNumber());
 
-        Payment paymentRefund = paymentService.processRefund(booking, bookingCancelRequest.getAccountNumber());
+        Payment paymentRefund = paymentService.processRefund(booking, passenger, bookingCancelRequest.getAccountNumber());
         return new BookingCancelledResponse(bookingId,
                 paymentRefund.getTransactionAmount(),
                 unallocatedSeat.getSeatNumber());
@@ -104,6 +106,7 @@ public class BookingService {
     @Transactional
     public FlightBookingChangeResponse changeBooking(Long bookingId, FlightBookingChangeRequest flightBookingChangeRequest) {
         cancelBooking(bookingId, new BookingCancelRequest(
+                flightBookingChangeRequest.getPassengerId(),
                 flightBookingChangeRequest.getSeatType(),
                 flightBookingChangeRequest.getSeatNumber(),
                 flightBookingChangeRequest.getAccountNumber()));
@@ -140,4 +143,5 @@ public class BookingService {
         }
         return flights.get().get(0);
     }
+
 }
